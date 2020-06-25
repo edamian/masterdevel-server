@@ -10,7 +10,6 @@ exports.createMessage = (req, res) => {
             msg: msg,
             tags: tags.split(","),
         }
-        
         addToMessages(newMessage);
         res.sendStatus(201);
     } catch(e) {
