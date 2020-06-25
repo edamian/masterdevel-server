@@ -1,5 +1,7 @@
 const { uuid, isUuid } = require('uuidv4');
 const { addToMessages, findByID, findByTag } = require('./../service/messageService');
+const { checkSignature } = require('../utils/signature');
+const { existsKey, findKey } = require('../service/credentialService');
 
 // create new message
 exports.createMessage = (req, res) => {
@@ -10,9 +12,21 @@ exports.createMessage = (req, res) => {
             msg: msg,
             tags: tags.split(","),
         }
-        addToMessages(newMessage);
-        res.sendStatus(201);
+
+        const signature = req.header('X-Signature');
+        const xRoute = req.header('X-Route');
+        const keySecret = findKey(req.header('X-Key'));
+        const data = [`msg: '${msg}'`,`tags: '${tags}'`, xRoute].sort().join(';');
+        let isSigned = checkSignature(signature, data, 'adios');
+        if(isSigned) {
+            addToMessages(newMessage);
+            res.sendStatus(201);
+        } else {
+            res.sendStatus(403);
+        }
+
     } catch(e) {
+        console.error(e);
         res.status(500).send({
             message: "Can not create message"
         });

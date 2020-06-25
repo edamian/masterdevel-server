@@ -11,3 +11,10 @@ exports.existsKey = (newKey) => {
         return newKeykeys[0] === keyKeys[0];
     });
 }
+
+exports.findKey = (haystack) => {
+    return keysStorage.filter(function(key) {
+        let objKeys = Object.keys(key);
+        return objKeys[0] === haystack;
+    });
+}
